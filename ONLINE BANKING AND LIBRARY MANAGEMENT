@@ -1,0 +1,323 @@
+1.online banking:
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+// Account class to represent individual accounts
+class Account {
+    private String accountId;
+    private String accountType;
+    private double balance;
+    private List<Transaction> transactionHistory;
+
+    public Account(String accountId, String accountType, double initialBalance) {
+        this.accountId = accountId;
+        this.accountType = accountType;
+        this.balance = initialBalance;
+        this.transactionHistory = new ArrayList<>();
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public List<Transaction> getTransactionHistory() {
+        return transactionHistory;
+    }
+
+    public void addTransaction(Transaction transaction) {
+        transactionHistory.add(transaction);
+    }
+
+    public void updateBalance(double amount) {
+        balance += amount;
+    }
+}
+
+// Transaction class to represent individual transactions
+class Transaction {
+    private String transactionId;
+    private String transactionType;
+    private double amount;
+    private String sourceAccountId;
+    private String destinationAccountId;
+
+    public Transaction(String transactionId, String transactionType, double amount, String sourceAccountId, String destinationAccountId) {
+        this.transactionId = transactionId;
+        this.transactionType = transactionType;
+        this.amount = amount;
+        this.sourceAccountId = sourceAccountId;
+        this.destinationAccountId = destinationAccountId;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public String getSourceAccountId() {
+        return sourceAccountId;
+    }
+
+    public String getDestinationAccountId() {
+        return destinationAccountId;
+    }
+}
+
+// OnlineBankingSystem class to manage accounts and transactions
+public class OnlineBankingSystem {
+    private Map<String, Account> accounts;
+    private Map<String, Transaction> transactions;
+    private int transactionCounter;
+
+    public OnlineBankingSystem() {
+        this.accounts = new HashMap<>();
+        this.transactions = new HashMap<>();
+        this.transactionCounter = 0;
+    }
+
+    // Method to create a new account
+    public void createAccount(String accountId, String accountType, double initialBalance) {
+        Account account = new Account(accountId, accountType, initialBalance);
+        accounts.put(accountId, account);
+    }
+
+    // Method to perform a transaction
+    public void performTransaction(String sourceAccountId, String destinationAccountId, double amount, String transactionType) {
+        if (!accounts.containsKey(sourceAccountId) || !accounts.containsKey(destinationAccountId)) {
+            System.out.println("Invalid account(s). Transaction failed.");
+            return;
+        }
+
+        Account sourceAccount = accounts.get(sourceAccountId);
+        Account destinationAccount = accounts.get(destinationAccountId);
+
+        if (transactionType.equals("withdrawal") && sourceAccount.getBalance() < amount) {
+            System.out.println("Insufficient funds. Transaction failed.");
+            return;
+        }
+
+        String transactionId = "T" + (++transactionCounter);
+        Transaction transaction = new Transaction(transactionId, transactionType, amount, sourceAccountId, destinationAccountId);
+
+        sourceAccount.addTransaction(transaction);
+        destinationAccount.addTransaction(transaction);
+
+        if (transactionType.equals("withdrawal")) {
+            sourceAccount.updateBalance(-amount);
+            destinationAccount.updateBalance(amount);
+        } else if (transactionType.equals("deposit")) {
+            sourceAccount.updateBalance(amount);
+            destinationAccount.updateBalance(-amount);
+        }
+
+        transactions.put(transactionId, transaction);
+
+        System.out.println("Transaction successful. Transaction ID: " + transactionId);
+    }
+
+    // Method to display account balance
+    public double viewBalance(String accountId) {
+        if (!accounts.containsKey(accountId)) {
+            System.out.println("Invalid account ID.");
+            return -1;
+        }
+
+        return accounts.get(accountId).getBalance();
+    }
+
+    // Method to display transaction history for an account
+    public List<Transaction> viewTransactionHistory(String accountId) {
+        if (!accounts.containsKey(accountId)) {
+            System.out.println("Invalid account ID.");
+            return null;
+        }
+
+        return accounts.get(accountId).getTransactionHistory();
+    }
+
+    public static void main(String[] args) {
+        OnlineBankingSystem bankingSystem = new OnlineBankingSystem();
+
+        // Creating accounts
+        bankingSystem.createAccount("A1001", "Savings", 5000);
+        bankingSystem.createAccount("A1002", "Checking", 3000);
+
+        // Performing transactions
+        bankingSystem.performTransaction("A1001", "A1002", 1000, "withdrawal");
+        bankingSystem.performTransaction("A1002", "A1001", 500, "deposit");
+
+        // Displaying account balances
+        System.out.println("Account A1001 balance: " + bankingSystem.viewBalance("A1001"));
+        System.out.println("Account A1002 balance: " + bankingSystem.viewBalance("A1002"));
+
+        // Displaying transaction history
+        List<Transaction> transactionHistoryA1001 = bankingSystem.viewTransactionHistory("A1001");
+        if (transactionHistoryA1001 != null) {
+            System.out.println("Transaction history for account A1001:");
+            for (Transaction transaction : transactionHistoryA1001) {
+                System.out.println(transaction.getTransactionId() + " - " + transaction.getTransactionType() + " - " + transaction.getAmount());
+            }
+        }
+    }
+}
+
+
+2.library management:
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+// Book class to represent individual books
+class Book {
+    private String title;
+    private String author;
+    private String genre;
+
+    public Book(String title, String author, String genre) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+}
+
+// Patron class to represent library patrons
+class Patron {
+    private String name;
+    private String contactInfo;
+    private List<Book> borrowingHistory;
+
+    public Patron(String name, String contactInfo) {
+        this.name = name;
+        this.contactInfo = contactInfo;
+        this.borrowingHistory = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public List<Book> getBorrowingHistory() {
+        return borrowingHistory;
+    }
+
+    public void addBookToHistory(Book book) {
+        borrowingHistory.add(book);
+    }
+}
+
+// Library class to manage books, patrons, and borrowing records
+public class LibraryManagementSystem {
+    private Map<String, Book> books;
+    private Map<String, Patron> patrons;
+    private Map<Patron, List<Book>> borrowingRecords;
+
+    public LibraryManagementSystem() {
+        this.books = new HashMap<>();
+        this.patrons = new HashMap<>();
+        this.borrowingRecords = new HashMap<>();
+    }
+
+    // Method to add a book to the library
+    public void addBook(String title, String author, String genre) {
+        Book book = new Book(title, author, genre);
+        books.put(title, book);
+    }
+
+    // Method to add a patron to the library
+    public void addPatron(String name, String contactInfo) {
+        Patron patron = new Patron(name, contactInfo);
+        patrons.put(name, patron);
+    }
+
+    // Method to borrow a book
+    public void borrowBook(String patronName, String bookTitle) {
+        if (!patrons.containsKey(patronName) || !books.containsKey(bookTitle)) {
+            System.out.println("Invalid patron or book.");
+            return;
+        }
+
+        Patron patron = patrons.get(patronName);
+        Book book = books.get(bookTitle);
+
+        patron.addBookToHistory(book);
+
+        List<Book> patronBooks = borrowingRecords.getOrDefault(patron, new ArrayList<>());
+        patronBooks.add(book);
+        borrowingRecords.put(patron, patronBooks);
+
+        System.out.println(patronName + " has successfully borrowed " + bookTitle + ".");
+    }
+
+    // Method to display borrowing history for a patron
+    public void displayBorrowingHistory(String patronName) {
+        if (!patrons.containsKey(patronName)) {
+            System.out.println("Invalid patron.");
+            return;
+        }
+
+        Patron patron = patrons.get(patronName);
+        List<Book> borrowingHistory = patron.getBorrowingHistory();
+
+        System.out.println("Borrowing history for " + patronName + ":");
+        for (Book book : borrowingHistory) {
+            System.out.println(book.getTitle() + " by " + book.getAuthor() + " (" + book.getGenre() + ")");
+        }
+    }
+
+    public static void main(String[] args) {
+        LibraryManagementSystem librarySystem = new LibraryManagementSystem();
+
+        // Adding books to the library
+        librarySystem.addBook("The Great Gatsby", "F. Scott Fitzgerald", "Classic");
+        librarySystem.addBook("To Kill a Mockingbird", "Harper Lee", "Fiction");
+        librarySystem.addBook("1984", "George Orwell", "Dystopian");
+
+        // Adding patrons to the library
+        librarySystem.addPatron("Alice", "alice@example.com");
+        librarySystem.addPatron("Bob", "bob@example.com");
+
+        // Borrowing books
+        librarySystem.borrowBook("Alice", "The Great Gatsby");
+        librarySystem.borrowBook("Bob", "To Kill a Mockingbird");
+        librarySystem.borrowBook("Alice", "1984");
+
+        // Displaying borrowing history
+        librarySystem.displayBorrowingHistory("Alice");
+        librarySystem.displayBorrowingHistory("Bob");
+    }
+}
