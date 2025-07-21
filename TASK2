@@ -1,0 +1,140 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+// Book class to represent individual books
+class Book {
+    private String title;
+    private String author;
+    private String genre;
+
+    public Book(String title, String author, String genre) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+}
+
+// Patron class to represent library patrons
+class Patron {
+    private String name;
+    private String contactInfo;
+    private List<Book> borrowingHistory;
+
+    public Patron(String name, String contactInfo) {
+        this.name = name;
+        this.contactInfo = contactInfo;
+        this.borrowingHistory = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public List<Book> getBorrowingHistory() {
+        return borrowingHistory;
+    }
+
+    public void addBookToHistory(Book book) {
+        borrowingHistory.add(book);
+    }
+}
+
+// Library class to manage books, patrons, and borrowing records
+public class LibraryManagementSystem {
+    private Map<String, Book> books;
+    private Map<String, Patron> patrons;
+    private Map<Patron, List<Book>> borrowingRecords;
+
+    public LibraryManagementSystem() {
+        this.books = new HashMap<>();
+        this.patrons = new HashMap<>();
+        this.borrowingRecords = new HashMap<>();
+    }
+
+    // Method to add a book to the library
+    public void addBook(String title, String author, String genre) {
+        Book book = new Book(title, author, genre);
+        books.put(title, book);
+    }
+
+    // Method to add a patron to the library
+    public void addPatron(String name, String contactInfo) {
+        Patron patron = new Patron(name, contactInfo);
+        patrons.put(name, patron);
+    }
+
+    // Method to borrow a book
+    public void borrowBook(String patronName, String bookTitle) {
+        if (!patrons.containsKey(patronName) || !books.containsKey(bookTitle)) {
+            System.out.println("Invalid patron or book.");
+            return;
+        }
+
+        Patron patron = patrons.get(patronName);
+        Book book = books.get(bookTitle);
+
+        patron.addBookToHistory(book);
+
+        List<Book> patronBooks = borrowingRecords.getOrDefault(patron, new ArrayList<>());
+        patronBooks.add(book);
+        borrowingRecords.put(patron, patronBooks);
+
+        System.out.println(patronName + " has successfully borrowed " + bookTitle + ".");
+    }
+
+    // Method to display borrowing history for a patron
+    public void displayBorrowingHistory(String patronName) {
+        if (!patrons.containsKey(patronName)) {
+            System.out.println("Invalid patron.");
+            return;
+        }
+
+        Patron patron = patrons.get(patronName);
+        List<Book> borrowingHistory = patron.getBorrowingHistory();
+
+        System.out.println("Borrowing history for " + patronName + ":");
+        for (Book book : borrowingHistory) {
+            System.out.println(book.getTitle() + " by " + book.getAuthor() + " (" + book.getGenre() + ")");
+        }
+    }
+
+    public static void main(String[] args) {
+        LibraryManagementSystem librarySystem = new LibraryManagementSystem();
+
+        // Adding books to the library
+        librarySystem.addBook("The Great Gatsby", "F. Scott Fitzgerald", "Classic");
+        librarySystem.addBook("To Kill a Mockingbird", "Harper Lee", "Fiction");
+        librarySystem.addBook("1984", "George Orwell", "Dystopian");
+
+        // Adding patrons to the library
+        librarySystem.addPatron("Alice", "alice@example.com");
+        librarySystem.addPatron("Bob", "bob@example.com");
+
+        // Borrowing books
+        librarySystem.borrowBook("Alice", "The Great Gatsby");
+        librarySystem.borrowBook("Bob", "To Kill a Mockingbird");
+        librarySystem.borrowBook("Alice", "1984");
+
+        // Displaying borrowing history
+        librarySystem.displayBorrowingHistory("Alice");
+        librarySystem.displayBorrowingHistory("Bob");
+    }
+}
