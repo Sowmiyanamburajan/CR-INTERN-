@@ -1,0 +1,179 @@
+1.ONLINE BANKING
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+// Account class to represent individual accounts
+class Account {
+    private String accountId;
+    private String accountType;
+    private double balance;
+    private List<Transaction> transactionHistory;
+
+    public Account(String accountId, String accountType, double initialBalance) {
+        this.accountId = accountId;
+        this.accountType = accountType;
+        this.balance = initialBalance;
+        this.transactionHistory = new ArrayList<>();
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public List<Transaction> getTransactionHistory() {
+        return transactionHistory;
+    }
+
+    public void addTransaction(Transaction transaction) {
+        transactionHistory.add(transaction);
+    }
+
+    public void updateBalance(double amount) {
+        balance += amount;
+    }
+}
+
+// Transaction class to represent individual transactions
+class Transaction {
+    private String transactionId;
+    private String transactionType;
+    private double amount;
+    private String sourceAccountId;
+    private String destinationAccountId;
+
+    public Transaction(String transactionId, String transactionType, double amount, String sourceAccountId, String destinationAccountId) {
+        this.transactionId = transactionId;
+        this.transactionType = transactionType;
+        this.amount = amount;
+        this.sourceAccountId = sourceAccountId;
+        this.destinationAccountId = destinationAccountId;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public String getSourceAccountId() {
+        return sourceAccountId;
+    }
+
+    public String getDestinationAccountId() {
+        return destinationAccountId;
+    }
+}
+
+// OnlineBankingSystem class to manage accounts and transactions
+public class OnlineBankingSystem {
+    private Map<String, Account> accounts;
+    private Map<String, Transaction> transactions;
+    private int transactionCounter;
+
+    public OnlineBankingSystem() {
+        this.accounts = new HashMap<>();
+        this.transactions = new HashMap<>();
+        this.transactionCounter = 0;
+    }
+
+    // Method to create a new account
+    public void createAccount(String accountId, String accountType, double initialBalance) {
+        Account account = new Account(accountId, accountType, initialBalance);
+        accounts.put(accountId, account);
+    }
+
+    // Method to perform a transaction
+    public void performTransaction(String sourceAccountId, String destinationAccountId, double amount, String transactionType) {
+        if (!accounts.containsKey(sourceAccountId) || !accounts.containsKey(destinationAccountId)) {
+            System.out.println("Invalid account(s). Transaction failed.");
+            return;
+        }
+
+        Account sourceAccount = accounts.get(sourceAccountId);
+        Account destinationAccount = accounts.get(destinationAccountId);
+
+        if (transactionType.equals("withdrawal") && sourceAccount.getBalance() < amount) {
+            System.out.println("Insufficient funds. Transaction failed.");
+            return;
+        }
+
+        String transactionId = "T" + (++transactionCounter);
+        Transaction transaction = new Transaction(transactionId, transactionType, amount, sourceAccountId, destinationAccountId);
+
+        sourceAccount.addTransaction(transaction);
+        destinationAccount.addTransaction(transaction);
+
+        if (transactionType.equals("withdrawal")) {
+            sourceAccount.updateBalance(-amount);
+            destinationAccount.updateBalance(amount);
+        } else if (transactionType.equals("deposit")) {
+            sourceAccount.updateBalance(amount);
+            destinationAccount.updateBalance(-amount);
+        }
+
+        transactions.put(transactionId, transaction);
+
+        System.out.println("Transaction successful. Transaction ID: " + transactionId);
+    }
+
+    // Method to display account balance
+    public double viewBalance(String accountId) {
+        if (!accounts.containsKey(accountId)) {
+            System.out.println("Invalid account ID.");
+            return -1;
+        }
+
+        return accounts.get(accountId).getBalance();
+    }
+
+    // Method to display transaction history for an account
+    public List<Transaction> viewTransactionHistory(String accountId) {
+        if (!accounts.containsKey(accountId)) {
+            System.out.println("Invalid account ID.");
+            return null;
+        }
+
+        return accounts.get(accountId).getTransactionHistory();
+    }
+
+    public static void main(String[] args) {
+        OnlineBankingSystem bankingSystem = new OnlineBankingSystem();
+
+        // Creating accounts
+        bankingSystem.createAccount("A1001", "Savings", 5000);
+        bankingSystem.createAccount("A1002", "Checking", 3000);
+
+        // Performing transactions
+        bankingSystem.performTransaction("A1001", "A1002", 1000, "withdrawal");
+        bankingSystem.performTransaction("A1002", "A1001", 500, "deposit");
+
+        // Displaying account balances
+        System.out.println("Account A1001 balance: " + bankingSystem.viewBalance("A1001"));
+        System.out.println("Account A1002 balance: " + bankingSystem.viewBalance("A1002"));
+
+        // Displaying transaction history
+        List<Transaction> transactionHistoryA1001 = bankingSystem.viewTransactionHistory("A1001");
+        if (transactionHistoryA1001 != null) {
+            System.out.println("Transaction history for account A1001:");
+            for (Transaction transaction : transactionHistoryA1001) {
+                System.out.println(transaction.getTransactionId() + " - " + transaction.getTransactionType() + " - " + transaction.getAmount());
+            }
+        }
+    }
+}
